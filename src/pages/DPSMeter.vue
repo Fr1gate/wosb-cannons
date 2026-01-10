@@ -1,11 +1,9 @@
 <template>
   <div class="dps-meter">
     <h1>Калькулятор урона в минуту (DPS)</h1>
-    
+
     <div class="armor-input-section">
-      <label for="armor-input" class="armor-label">
-        Броня цели:
-      </label>
+      <label for="armor-input" class="armor-label"> Броня цели: </label>
       <input
         id="armor-input"
         v-model.number="targetArmor"
@@ -17,7 +15,10 @@
       />
     </div>
 
-    <div v-if="targetArmor !== null && targetArmor >= 0" class="results-section">
+    <div
+      v-if="targetArmor !== null && targetArmor >= 0"
+      class="results-section"
+    >
       <div class="filters">
         <div class="filter-group">
           <label class="filter-label">Поиск по названию:</label>
@@ -143,7 +144,9 @@
               <td class="type-cell">{{ getTypeLabel(item.cannon.type) }}</td>
               <td class="name-cell">{{ item.cannon.name }}</td>
               <td>{{ formatValue(item.cannon.penetration) }}</td>
-              <td class="damage-cell">{{ formatDamage(item.damagePerShot) }}</td>
+              <td class="damage-cell">
+                {{ formatDamage(item.damagePerShot) }}
+              </td>
               <td>{{ item.cannon.reloadTimeSeconds }}</td>
               <td class="dps-cell">{{ formatDPS(item.dps) }}</td>
               <td>{{ formatValue(item.cannon.range) }}</td>
@@ -179,8 +182,8 @@ const availableTypes = [
   { value: "light", label: "Легкие" },
   { value: "medium", label: "Средние" },
   { value: "heavy", label: "Тяжелые" },
-  { value: "special", label: "Специальные" },
-  { value: "mortar", label: "Мортиры" },
+  // { value: "special", label: "Специальные" },
+  // { value: "mortar", label: "Мортиры" },
 ];
 
 const getTypeLabel = (type) => {
@@ -228,7 +231,7 @@ const calculateDamagePerShot = (penetration) => {
 
 const calculateDPS = (cannon) => {
   const damagePerShot = calculateDamagePerShot(cannon.penetration);
-  
+
   if (damagePerShot === null || damagePerShot === 0) {
     return 0;
   }
@@ -298,10 +301,16 @@ const filteredDpsData = computed(() => {
     }
 
     // Filter by reload time range
-    if (reloadMin.value !== null && item.cannon.reloadTimeSeconds < reloadMin.value) {
+    if (
+      reloadMin.value !== null &&
+      item.cannon.reloadTimeSeconds < reloadMin.value
+    ) {
       return false;
     }
-    if (reloadMax.value !== null && item.cannon.reloadTimeSeconds > reloadMax.value) {
+    if (
+      reloadMax.value !== null &&
+      item.cannon.reloadTimeSeconds > reloadMax.value
+    ) {
       return false;
     }
 
@@ -653,4 +662,3 @@ const resetFilters = () => {
   }
 }
 </style>
-

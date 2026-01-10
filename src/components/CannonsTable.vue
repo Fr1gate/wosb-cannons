@@ -128,8 +128,8 @@ const availableTypes = [
   { value: "light", label: "Легкие" },
   { value: "medium", label: "Средние" },
   { value: "heavy", label: "Тяжелые" },
-  { value: "special", label: "Специальные" },
-  { value: "mortar", label: "Мортиры" },
+  // { value: "special", label: "Специальные" },
+  // { value: "mortar", label: "Мортиры" },
 ];
 
 const getTypeLabel = (type) => {
@@ -169,19 +169,31 @@ const filteredCannons = computed(() => {
 
     // Filter by penetration range
     if (cannon.penetration !== null) {
-      if (penetrationMin.value !== null && cannon.penetration < penetrationMin.value) {
+      if (
+        penetrationMin.value !== null &&
+        cannon.penetration < penetrationMin.value
+      ) {
         return false;
       }
-      if (penetrationMax.value !== null && cannon.penetration > penetrationMax.value) {
+      if (
+        penetrationMax.value !== null &&
+        cannon.penetration > penetrationMax.value
+      ) {
         return false;
       }
     }
 
     // Filter by reload time range
-    if (reloadMin.value !== null && cannon.reloadTimeSeconds < reloadMin.value) {
+    if (
+      reloadMin.value !== null &&
+      cannon.reloadTimeSeconds < reloadMin.value
+    ) {
       return false;
     }
-    if (reloadMax.value !== null && cannon.reloadTimeSeconds > reloadMax.value) {
+    if (
+      reloadMax.value !== null &&
+      cannon.reloadTimeSeconds > reloadMax.value
+    ) {
       return false;
     }
 
@@ -444,4 +456,3 @@ const resetFilters = () => {
   }
 }
 </style>
-
