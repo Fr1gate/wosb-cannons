@@ -13,6 +13,14 @@
         placeholder="Введите броню цели"
         class="armor-input"
       />
+      <label class="phosphorus-checkbox-label">
+        <input
+          v-model="isPhosphorusActive"
+          type="checkbox"
+          class="phosphorus-checkbox"
+        />
+        <span>Фосфор (+2 пробитие)</span>
+      </label>
     </div>
 
     <div
@@ -143,7 +151,15 @@
             >
               <td class="type-cell">{{ getTypeLabel(item.cannon.type) }}</td>
               <td class="name-cell">{{ item.cannon.name }}</td>
-              <td>{{ formatValue(item.cannon.penetration) }}</td>
+              <td class="penetration-cell">
+                {{ formatValue(item.cannon.penetration) }}
+                <span
+                  v-if="isPhosphorusActive && item.cannon.penetration !== null"
+                  class="phosphorus-bonus"
+                >
+                  +2
+                </span>
+              </td>
               <td class="damage-cell">
                 {{ formatDamage(item.damagePerShot) }}
               </td>
@@ -169,6 +185,7 @@ import { ref, computed } from "vue";
 import { cannons } from "../const/cannons.js";
 
 const targetArmor = ref(0);
+const isPhosphorusActive = ref(false);
 const searchQuery = ref("");
 const selectedTypes = ref(["light", "medium", "heavy", "special", "mortar"]);
 const penetrationMin = ref(null);
@@ -218,15 +235,24 @@ const formatDPS = (dps) => {
   return dps.toFixed(1);
 };
 
-const calculateDamagePerShot = (penetration) => {
+const getEffectivePenetration = (penetration) => {
   if (penetration === null || penetration === undefined) {
+    return null;
+  }
+  // Add +2 penetration if фосфор is active
+  return isPhosphorusActive.value ? penetration + 2 : penetration;
+};
+
+const calculateDamagePerShot = (penetration) => {
+  const effectivePenetration = getEffectivePenetration(penetration);
+  if (effectivePenetration === null) {
     return null;
   }
   if (targetArmor.value === null || targetArmor.value < 0) {
     return null;
   }
   // Damage = penetration - armor, minimum 0
-  return Math.max(0, penetration - targetArmor.value);
+  return Math.max(0, effectivePenetration - targetArmor.value);
 };
 
 const calculateDPS = (cannon) => {
@@ -284,17 +310,20 @@ const filteredDpsData = computed(() => {
       return false;
     }
 
-    // Filter by penetration range
-    if (item.cannon.penetration !== null) {
+    // Filter by penetration range (use effective penetration)
+    const effectivePenetration = getEffectivePenetration(
+      item.cannon.penetration
+    );
+    if (effectivePenetration !== null) {
       if (
         penetrationMin.value !== null &&
-        item.cannon.penetration < penetrationMin.value
+        effectivePenetration < penetrationMin.value
       ) {
         return false;
       }
       if (
         penetrationMax.value !== null &&
-        item.cannon.penetration > penetrationMax.value
+        effectivePenetration > penetrationMax.value
       ) {
         return false;
       }
@@ -378,6 +407,26 @@ const resetFilters = () => {
       &:focus {
         outline: none;
         border-color: var(--color-border-hover);
+      }
+    }
+
+    .phosphorus-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      user-select: none;
+
+      .phosphorus-checkbox {
+        width: 1.2rem;
+        height: 1.2rem;
+        cursor: pointer;
+      }
+
+      span {
+        color: var(--color-text);
+        font-size: 1rem;
+        font-weight: 500;
       }
     }
   }
@@ -594,6 +643,17 @@ const resetFilters = () => {
 
         &.name-cell {
           font-weight: 500;
+        }
+
+        &.penetration-cell {
+          position: relative;
+
+          .phosphorus-bonus {
+            color: #4caf50;
+            font-weight: 700;
+            margin-left: 0.25rem;
+            font-size: 0.9em;
+          }
         }
 
         &.damage-cell {
