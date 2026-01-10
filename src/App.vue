@@ -3,7 +3,7 @@ import { ref, computed } from "vue";
 import HomePage from "./pages/HomePage.vue";
 import DPSMeter from "./pages/DPSMeter.vue";
 
-const currentPage = ref("home");
+const currentPage = ref("dps");
 
 const pages = [
   { id: "home", label: "Список орудий" },
@@ -17,7 +17,7 @@ const currentComponent = computed(() => {
 
 <template>
   <div class="app">
-    <nav class="navigation">
+    <!-- <nav class="navigation">
       <button
         v-for="page in pages"
         :key="page.id"
@@ -26,7 +26,7 @@ const currentComponent = computed(() => {
       >
         {{ page.label }}
       </button>
-    </nav>
+    </nav> -->
 
     <component :is="currentComponent" />
   </div>
