@@ -21,6 +21,7 @@
               v-model="isPhosphorusActive"
               type="checkbox"
               class="phosphorus-checkbox"
+              @change="handlePhosphorusChange"
             />
             <span>Фосфор (+2 пробития)</span>
           </label>
@@ -31,6 +32,7 @@
               v-model="isBlackPowderActive"
               type="checkbox"
               class="phosphorus-checkbox"
+              @change="handleBlackPowderChange"
             />
             <span>Черный двойной порох (+2.5 пробития)</span>
           </label>
@@ -62,6 +64,14 @@
                 class="type-checkbox"
               />
               <span>{{ type.label }}</span>
+            </label>
+            <label class="type-filter-label">
+              <input
+                v-model="showBombards"
+                type="checkbox"
+                class="type-checkbox"
+              />
+              <span>Показывать бомбарды</span>
             </label>
           </div>
         </div>
@@ -146,16 +156,27 @@
               <th>Дальность</th>
               <th>Макс. угол (°)</th>
               <th>Разброс</th>
+              <th>Cтволы</th>
             </tr>
           </thead>
           <tbody>
             <tr
               v-for="(item, index) in filteredDpsData"
               :key="index"
-              :class="`type-${item.cannon.type}`"
+              :class="[
+                `type-${item.cannon.type}`,
+                { 'is-bombard': item.cannon.isBombard },
+              ]"
             >
-              <td class="type-cell">{{ getTypeLabel(item.cannon.type) }}</td>
-              <td class="name-cell">{{ item.cannon.name }}</td>
+              <td class="type-cell">
+                {{ getTypeLabel(item.cannon.type) }}
+                <span v-if="item.cannon.isBombard" class="bombard-badge">
+                  Бомбарда
+                </span>
+              </td>
+              <td class="name-cell">
+                {{ item.cannon.name }}
+              </td>
               <td class="penetration-cell">
                 {{ formatValue(item.cannon.penetration) }}
                 <span
@@ -173,6 +194,7 @@
               <td>{{ formatValue(item.cannon.range) }}</td>
               <td>{{ formatValue(item.cannon.maxAngleDeg) }}</td>
               <td>{{ formatValue(item.cannon.scatter) }}</td>
+              <td>{{ formatValue(item.cannon.shotsPerLoad) }}</td>
             </tr>
           </tbody>
         </table>
@@ -197,6 +219,19 @@ const reloadMax = ref(null);
 const dpsMin = ref(null);
 const dpsMax = ref(null);
 const rangeMin = ref(null);
+const showBombards = ref(true);
+
+const handlePhosphorusChange = () => {
+  if (isPhosphorusActive.value) {
+    isBlackPowderActive.value = false;
+  }
+};
+
+const handleBlackPowderChange = () => {
+  if (isBlackPowderActive.value) {
+    isPhosphorusActive.value = false;
+  }
+};
 
 const availableTypes = [
   { value: "light", label: "Легкие" },
@@ -208,11 +243,11 @@ const availableTypes = [
 
 const getTypeLabel = (type) => {
   const labels = {
-    light: "Легкие",
-    medium: "Средние",
-    heavy: "Тяжелые",
-    special: "Специальные",
-    mortar: "Мортиры",
+    light: "Легкая",
+    medium: "Средняя",
+    heavy: "Тяжелая",
+    special: "Специальная",
+    mortar: "Мортира",
   };
   return labels[type] || type;
 };
@@ -265,16 +300,18 @@ const calculateDamagePerShot = (penetration) => {
 };
 
 const calculateDPS = (cannon) => {
-  const damagePerShot = calculateDamagePerShot(cannon.penetration);
+  const damagePerLoad =
+    calculateDamagePerShot(cannon.penetration) * cannon.shotsPerLoad;
 
-  if (damagePerShot === null || damagePerShot === 0) {
+  if (damagePerLoad === null || damagePerLoad === 0) {
     return 0;
   }
 
   // DPS = damage per shot * shots per minute
   // Shots per minute = 60 / reloadTimeSeconds
-  const shotsPerMinute = 60 / cannon.reloadTimeSeconds;
-  return damagePerShot * shotsPerMinute;
+  const shotsPerMinute =
+    60 / (cannon.reloadTimeSeconds + (cannon.shotsPerLoad - 1));
+  return damagePerLoad * shotsPerMinute;
 };
 
 const allDpsData = computed(() => {
@@ -306,6 +343,9 @@ const filteredDpsData = computed(() => {
   return allDpsData.value.filter((item) => {
     // Filter by type
     if (!selectedTypes.value.includes(item.cannon.type)) {
+      return false;
+    }
+    if (!showBombards.value && item.cannon.isBombard) {
       return false;
     }
 
@@ -394,6 +434,7 @@ input::-webkit-inner-spin-button {
 /* Firefox */
 input[type="number"] {
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 h1 {
@@ -668,6 +709,22 @@ h1 {
         &.type-mortar {
           border-left: 3px solid #9c27b0;
         }
+
+        &.is-bombard {
+          background: linear-gradient(
+            90deg,
+            rgba(200, 120, 100, 0.02) 0%,
+            transparent 100%
+          );
+
+          &:hover {
+            background: linear-gradient(
+              90deg,
+              rgba(200, 120, 100, 0.04) 0%,
+              var(--color-background-soft) 100%
+            );
+          }
+        }
       }
 
       td {
@@ -677,6 +734,20 @@ h1 {
         &.type-cell {
           font-weight: 500;
           color: var(--color-heading);
+
+          .bombard-badge {
+            display: inline-block;
+            margin-left: 0.5rem;
+            padding: 0.15rem 0.4rem;
+            background: rgba(200, 120, 100, 0.15);
+            color: #b8735a;
+            border: 1px solid rgba(200, 120, 100, 0.3);
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+          }
         }
 
         &.name-cell {
