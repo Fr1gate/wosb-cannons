@@ -27,12 +27,11 @@ const messages = {
         searchLabel: "Поиск по названию:",
         typeLabel: "Тип орудия:",
         showBombards: "Бомбарды",
-        penetration: "Пробитие:",
-        reload: "Перезарядка (сек):",
         rangeMin: "Минимальная дальность:",
         min: "Мин",
         max: "Макс",
         reset: "Сбросить фильтры",
+        boardingNoReload: "Абордаж без перезарядки",
       },
       results: {
         empty: "Нет результатов, соответствующих фильтрам",
@@ -50,6 +49,7 @@ const messages = {
         broadsideDamage: "Урон за залп",
         broadsidesNeeded: "Кол-во залпов",
         bombard: "Бомбарда",
+        boardingCandidate: "☠",
       },
       types: {
         light: "Легкие",
@@ -103,12 +103,11 @@ const messages = {
         searchLabel: "Search by name:",
         typeLabel: "Cannon type:",
         showBombards: "Bombards",
-        penetration: "Penetration:",
-        reload: "Reload (sec):",
         rangeMin: "Minimum range:",
         min: "Min",
         max: "Max",
         reset: "Reset filters",
+        boardingNoReload: "Boarding without reload",
       },
       results: {
         empty: "No results matching filters",
@@ -126,6 +125,7 @@ const messages = {
         broadsideDamage: "Broadside damage",
         broadsidesNeeded: "Broadsides needed",
         bombard: "Bombard",
+        boardingCandidate: "☠",
       },
       types: {
         light: "Light",

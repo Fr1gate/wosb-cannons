@@ -88,37 +88,10 @@
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">{{ t("dps.filters.penetration") }}</label>
-          <div class="range-inputs">
-            <Input
-              v-model="penetrationMin"
-              type="number"
-              :placeholder="t('dps.filters.min')"
-            />
-            <span>—</span>
-            <Input
-              v-model="penetrationMax"
-              type="number"
-              :placeholder="t('dps.filters.max')"
-            />
-          </div>
-        </div>
 
-        <div class="filter-group">
-          <label class="filter-label">{{ t("dps.filters.reload") }}</label>
-          <div class="range-inputs">
-            <Input
-              v-model="reloadMin"
-              type="number"
-              :placeholder="t('dps.filters.min')"
-            />
-            <span>—</span>
-            <Input
-              v-model="reloadMax"
-              type="number"
-              :placeholder="t('dps.filters.max')"
-            />
-          </div>
+          <Checkbox v-model="boardingNoReloadActive">
+            {{ t("dps.filters.boardingNoReload") }}
+          </Checkbox>
         </div>
 
         <div class="filter-group">
@@ -203,6 +176,9 @@
           </template>
           <template #["broadsideDamage"]="{ row }">
             {{ formatNumber(row.broadsideDamage) }}
+            <span v-if="row.boardingCandidate && !row.cannon.isBombard" class="boarding-badge">
+              {{ t("dps.table.boardingCandidate") }}
+            </span>
           </template>
           <template #["broadsidesNeeded"]="{ row }">
             {{ formatValue(row.broadsidesNeeded) }}
@@ -234,12 +210,9 @@ const targetHP = ref(3000);
 const cannonsNumber = ref(38);
 const isPhosphorusActive = ref(false);
 const isBlackPowderActive = ref(false);
+const boardingNoReloadActive = ref(false);
 const searchQuery = ref("");
 const selectedTypes = ref(["light", "medium", "heavy", "special", "mortar"]);
-const penetrationMin = ref(null);
-const penetrationMax = ref(null);
-const reloadMin = ref(null);
-const reloadMax = ref(null);
 const dpsMin = ref(null);
 const dpsMax = ref(null);
 const rangeMin = ref(null);
@@ -391,6 +364,11 @@ const allDpsData = computed(() => {
         cannonsNumber.value !== null
           ? damagePerLoad * cannonsNumber.value
           : null;
+      const boardingCandidate =
+        targetHP.value !== null &&
+        broadsideDamage !== null &&
+        broadsideDamage > 0 &&
+        broadsideDamage * 2 > targetHP.value / 2;
       const broadsidesNeeded =
         targetHP.value !== null &&
         broadsideDamage !== null &&
@@ -403,6 +381,7 @@ const allDpsData = computed(() => {
         damagePerShot,
         dps,
         broadsideDamage,
+        boardingCandidate,
         broadsidesNeeded,
       };
     })
@@ -418,6 +397,9 @@ const filteredDpsData = computed(() => {
     if (!showBombards.value && item.cannon.isBombard) {
       return false;
     }
+    if (boardingNoReloadActive.value && item.cannon.isBombard) {
+      return false;
+    }
 
     // Filter by search query
     if (
@@ -429,37 +411,13 @@ const filteredDpsData = computed(() => {
       return false;
     }
 
-    // Filter by penetration range (use effective penetration)
-    const effectivePenetration = getEffectivePenetration(
-      item.cannon.penetration
-    );
-    if (effectivePenetration !== null) {
-      if (
-        penetrationMin.value !== null &&
-        effectivePenetration < penetrationMin.value
-      ) {
+    if (boardingNoReloadActive.value) {
+      if (targetHP.value === null || cannonsNumber.value === null) {
         return false;
       }
-      if (
-        penetrationMax.value !== null &&
-        effectivePenetration > penetrationMax.value
-      ) {
+      if (!item.boardingCandidate) {
         return false;
       }
-    }
-
-    // Filter by reload time range
-    if (
-      reloadMin.value !== null &&
-      item.cannon.reloadTimeSeconds < reloadMin.value
-    ) {
-      return false;
-    }
-    if (
-      reloadMax.value !== null &&
-      item.cannon.reloadTimeSeconds > reloadMax.value
-    ) {
-      return false;
     }
 
     // Filter by DPS range
@@ -482,10 +440,7 @@ const filteredDpsData = computed(() => {
 const resetFilters = () => {
   searchQuery.value = "";
   selectedTypes.value = ["light", "medium", "heavy", "special", "mortar"];
-  penetrationMin.value = null;
-  penetrationMax.value = null;
-  reloadMin.value = null;
-  reloadMax.value = null;
+  boardingNoReloadActive.value = false;
   dpsMin.value = null;
   dpsMax.value = null;
   rangeMin.value = null;
@@ -726,6 +681,20 @@ const resetFilters = () => {
           margin-left: 0.25rem;
           font-size: 0.9em;
         }
+      }
+
+      :deep(.ui-table td) .boarding-badge {
+        display: inline-block;
+        margin-left: 0.5rem;
+        padding: 0.1rem 0.35rem;
+        background: rgba(76, 175, 80, 0.15);
+        border: 1px solid rgba(76, 175, 80, 0.35);
+        border-radius: 3px;
+        color: #6bcf7a;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
       }
 
       :deep(.ui-table td.damage-cell) {
