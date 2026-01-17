@@ -2,6 +2,7 @@
   <div class="dps-meter">
     <div class="settings-block">
       <div class="armor-input-section">
+        <div class="section-heading">{{ t("dps.sections.target") }}</div>
         <div class="armor-input-row">
           <label for="armor-input" class="armor-label">
             {{ t("dps.inputs.targetArmor") }}
@@ -41,30 +42,22 @@
             :placeholder="t('dps.placeholders.cannonsPerSide')"
           />
         </div>
-        <div>
-          <label class="phosphorus-checkbox-label">
-            <input
-              v-model="isPhosphorusActive"
-              type="checkbox"
-              class="phosphorus-checkbox"
-              @change="handlePhosphorusChange"
-            />
-            <span>{{ t("dps.buffs.phosphorus") }}</span>
-          </label>
+        <div class="checkbox-row">
+          <Checkbox v-model="isPhosphorusActive" @change="handlePhosphorusChange">
+            {{ t("dps.buffs.phosphorus") }}
+          </Checkbox>
         </div>
-        <div>
-          <label class="phosphorus-checkbox-label">
-            <input
-              v-model="isBlackPowderActive"
-              type="checkbox"
-              class="phosphorus-checkbox"
-              @change="handleBlackPowderChange"
-            />
-            <span>{{ t("dps.buffs.blackPowder") }}</span>
-          </label>
+        <div class="checkbox-row">
+          <Checkbox
+            v-model="isBlackPowderActive"
+            @change="handleBlackPowderChange"
+          >
+            {{ t("dps.buffs.blackPowder") }}
+          </Checkbox>
         </div>
       </div>
       <div class="filters">
+        <div class="section-heading">{{ t("dps.sections.filters") }}</div>
         <div class="filter-group">
           <label class="filter-label">{{ t("dps.filters.searchLabel") }}</label>
           <Input
@@ -82,21 +75,14 @@
               :key="type.value"
               class="type-filter-label"
             >
-              <input
-                v-model="selectedTypes"
-                type="checkbox"
-                :value="type.value"
-                class="type-checkbox"
-              />
-              <span>{{ type.label }}</span>
+              <Checkbox v-model="selectedTypes" :value="type.value">
+                {{ type.label }}
+              </Checkbox>
             </label>
             <label class="type-filter-label">
-              <input
-                v-model="showBombards"
-                type="checkbox"
-                class="type-checkbox"
-              />
-              <span>{{ t("dps.filters.showBombards") }}</span>
+              <Checkbox v-model="showBombards">
+                {{ t("dps.filters.showBombards") }}
+              </Checkbox>
             </label>
           </div>
         </div>
@@ -234,6 +220,7 @@ import { cannons } from "../const/cannons.js";
 import { formatNumber, formatValue } from "../utils/formatting.js";
 import Input from "../components/UI/Input.vue";
 import Button from "../components/UI/Button.vue";
+import Checkbox from "../components/UI/Checkbox.vue";
 import DataTable from "../components/UI/DataTable.vue";
 import { useAppStore } from "../stores/app";
 
@@ -506,148 +493,103 @@ const resetFilters = () => {
 </script>
 
 <style lang="scss" scoped>
-h1 {
-  color: var(--color-heading);
-  margin-block: 1rem;
-  text-align: center;
-}
-
 .dps-meter {
-  padding-inline: 1rem;
-  display: flex;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: 1rem;
+  align-items: start;
 
   .settings-block {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
   }
 
-  .armor-input-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.5rem;
-    background: var(--color-background-soft);
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-
-    .armor-label {
-      font-weight: 600;
-      color: var(--color-heading);
-      font-size: 1rem;
-      white-space: nowrap;
-    }
-
-    .armor-input-row {
-      :deep(.ui-input) {
-        width: 100px;
-      }
-    }
-
-    .phosphorus-checkbox-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      user-select: none;
-
-      .phosphorus-checkbox {
-        width: 1.2rem;
-        height: 1.2rem;
-        cursor: pointer;
-      }
-
-      span {
-        color: var(--color-text);
-        font-size: 1rem;
-        font-weight: 500;
-      }
-    }
-  }
+  .armor-input-section,
   .filters {
     background: var(--color-background-soft);
-    padding: 1.5rem;
-    border-radius: 8px;
-    margin-bottom: 1.5rem;
     border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+  }
 
-    .filter-group {
-      margin-bottom: 1rem;
+  .section-heading {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-heading);
+    opacity: 0.85;
+    padding-bottom: 0.15rem;
+    border-bottom: 1px solid var(--color-border);
+  }
 
-      &:last-child {
-        margin-bottom: 0;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
+  .armor-input-row,
+  .filter-group {
+    display: grid;
+    gap: 0.4rem;
+    min-width: 0;
+  }
 
-      .filter-label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        color: var(--color-heading);
-        font-size: 0.9rem;
-      }
+  .armor-label,
+  .filter-label {
+    font-weight: 600;
+    color: var(--color-heading);
+    font-size: 0.9rem;
+  }
 
-      :deep(.ui-input) {
-        width: 250px;
-        max-width: 400px;
-      }
+  :deep(.ui-input) {
+    width: 100%;
+    min-width: 0;
+  }
 
-      .type-filters {
-        display: flex;
-        flex-direction: column;
-        flex-wrap: wrap;
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+  }
 
-        .type-filter-label {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding-block: 0.25rem;
-          cursor: pointer;
-          border-radius: 4px;
-          transition: background-color 0.2s;
+  .type-filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 0.4rem;
 
-          &:hover {
-            background: var(--color-background-mute);
-          }
+    .type-filter-label {
+      padding: 0.2rem 0.35rem;
+      border-radius: 4px;
+      transition: background-color 0.2s;
 
-          .type-checkbox {
-            cursor: pointer;
-            width: 1.2rem;
-            height: 1.2rem;
-          }
-
-          span {
-            user-select: none;
-            color: var(--color-text);
-          }
-        }
-      }
-
-      .range-inputs {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        flex-wrap: wrap;
-
-        :deep(.ui-input) {
-          width: 100px;
-        }
-
-        span {
-          color: var(--color-text);
-        }
-      }
-
-      .results-count {
-        color: var(--color-text);
-        font-size: 0.9rem;
-        font-weight: 500;
+      &:hover {
+        background: var(--color-background-mute);
       }
     }
+  }
+
+  .range-inputs {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.4rem;
+
+    span {
+      color: var(--color-text);
+      text-align: center;
+    }
+  }
+
+  .filter-group:last-child {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .results-count {
+    color: var(--color-text);
+    font-size: 0.85rem;
+    font-weight: 500;
   }
 
   .results-section {
@@ -811,18 +753,8 @@ h1 {
   }
 
   @media (max-width: 768px) {
-    padding: 1rem;
-
-    .armor-input-section {
-      flex-direction: column;
-      align-items: flex-start;
-
-      .armor-input-row {
-        :deep(.ui-input) {
-          width: 100%;
-        }
-      }
-    }
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
 
     .results-section {
       .filters {
@@ -830,24 +762,16 @@ h1 {
 
         .filter-group {
           .type-filters {
-            flex-direction: column;
-            gap: 0.5rem;
+            grid-template-columns: 1fr;
           }
 
           .range-inputs {
-            :deep(.ui-input) {
-              width: 80px;
-            }
+            grid-template-columns: 1fr;
           }
         }
       }
     }
 
   }
-}
-
-.armor-input-row {
-  display: flex;
-  justify-content: space-between;
 }
 </style>

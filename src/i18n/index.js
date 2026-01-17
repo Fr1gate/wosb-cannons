@@ -11,12 +11,12 @@ const messages = {
       inputs: {
         targetArmor: "Броня цели:",
         targetHp: "HP цели:",
-        cannonsPerSide: "Количество пушек с борта:",
+        cannonsPerSide: "Пушек с борта:",
       },
       placeholders: {
         targetArmor: "Введите броню цели",
         targetHp: "Введите HP цели",
-        cannonsPerSide: "Введите количество пушек",
+        cannonsPerSide: "Введите кол-во пушек",
         search: "Введите название орудия...",
       },
       buffs: {
@@ -26,7 +26,7 @@ const messages = {
       filters: {
         searchLabel: "Поиск по названию:",
         typeLabel: "Тип орудия:",
-        showBombards: "Показывать бомбарды",
+        showBombards: "Бомбарды",
         penetration: "Пробитие:",
         reload: "Перезарядка (сек):",
         rangeMin: "Минимальная дальность:",
@@ -63,6 +63,10 @@ const messages = {
         specialSingle: "Специальная",
         mortarSingle: "Мортира",
       },
+      sections: {
+        target: "Цель",
+        filters: "Фильтры",
+      },
     },
     menu: {
       dps: "Калькулятор DPS",
@@ -83,12 +87,12 @@ const messages = {
       inputs: {
         targetArmor: "Target armor:",
         targetHp: "Target HP:",
-        cannonsPerSide: "Cannons per side:",
+        cannonsPerSide: "Guns per side:",
       },
       placeholders: {
         targetArmor: "Enter target armor",
         targetHp: "Enter target HP",
-        cannonsPerSide: "Enter cannons count",
+        cannonsPerSide: "Enter guns count",
         search: "Enter cannon name...",
       },
       buffs: {
@@ -98,7 +102,7 @@ const messages = {
       filters: {
         searchLabel: "Search by name:",
         typeLabel: "Cannon type:",
-        showBombards: "Show bombards",
+        showBombards: "Bombards",
         penetration: "Penetration:",
         reload: "Reload (sec):",
         rangeMin: "Minimum range:",
@@ -134,6 +138,10 @@ const messages = {
         heavySingle: "Heavy",
         specialSingle: "Special",
         mortarSingle: "Mortar",
+      },
+      sections: {
+        target: "Target",
+        filters: "Filters",
       },
     },
     menu: {

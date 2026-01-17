@@ -21,5 +21,6 @@ import SideMenu from "./components/SideMenu.vue";
 }
 .page-wrapper {
   padding-top: 0.5rem;
+  padding-inline: 0.5rem;
 }
 </style>
