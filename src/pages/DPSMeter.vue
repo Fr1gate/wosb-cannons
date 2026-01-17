@@ -5,40 +5,37 @@
       <div class="armor-input-section">
         <div class="armor-input-row">
           <label for="armor-input" class="armor-label"> Броня цели: </label>
-          <input
+          <Input
             id="armor-input"
-            v-model.number="targetArmor"
+            v-model="targetArmor"
             type="number"
             min="0"
             step="0.1"
             placeholder="Введите броню цели"
-            class="armor-input"
           />
         </div>
         <div class="armor-input-row">
-          <label for="armor-input" class="armor-label"> HP цели: </label>
-          <input
-            id="armor-input"
-            v-model.number="targetHP"
+          <label for="hp-input" class="armor-label"> HP цели: </label>
+          <Input
+            id="hp-input"
+            v-model="targetHP"
             type="number"
             min="1"
             step="10"
             placeholder="Введите HP цели"
-            class="armor-input"
           />
         </div>
         <div class="armor-input-row">
-          <label for="armor-input" class="armor-label">
+          <label for="cannons-input" class="armor-label">
             Количество пушек с борта:
           </label>
-          <input
-            id="armor-input"
-            v-model.number="cannonsNumber"
+          <Input
+            id="cannons-input"
+            v-model="cannonsNumber"
             type="number"
             min="1"
             step="1"
             placeholder="Введите количество пушек"
-            class="armor-input"
           />
         </div>
         <div>
@@ -67,11 +64,10 @@
       <div class="filters">
         <div class="filter-group">
           <label class="filter-label">Поиск по названию:</label>
-          <input
+          <Input
             v-model="searchQuery"
             type="text"
             placeholder="Введите название орудия..."
-            class="search-input"
           />
         </div>
 
@@ -105,58 +101,35 @@
         <div class="filter-group">
           <label class="filter-label">Пробитие:</label>
           <div class="range-inputs">
-            <input
-              v-model.number="penetrationMin"
-              type="number"
-              placeholder="Мин"
-              class="range-input"
-            />
+            <Input v-model="penetrationMin" type="number" placeholder="Мин" />
             <span>—</span>
-            <input
-              v-model.number="penetrationMax"
-              type="number"
-              placeholder="Макс"
-              class="range-input"
-            />
+            <Input v-model="penetrationMax" type="number" placeholder="Макс" />
           </div>
         </div>
 
         <div class="filter-group">
           <label class="filter-label">Перезарядка (сек):</label>
           <div class="range-inputs">
-            <input
-              v-model.number="reloadMin"
-              type="number"
-              placeholder="Мин"
-              class="range-input"
-            />
+            <Input v-model="reloadMin" type="number" placeholder="Мин" />
             <span>—</span>
-            <input
-              v-model.number="reloadMax"
-              type="number"
-              placeholder="Макс"
-              class="range-input"
-            />
+            <Input v-model="reloadMax" type="number" placeholder="Макс" />
           </div>
         </div>
 
         <div class="filter-group">
           <label class="filter-label">Минимальная дальность:</label>
           <div class="range-inputs">
-            <input
-              v-model.number="rangeMin"
+            <Input
+              v-model="rangeMin"
               type="number"
               placeholder="Мин"
               step="10"
-              class="range-input"
             />
           </div>
         </div>
 
         <div class="filter-group">
-          <button @click="resetFilters" class="reset-button">
-            Сбросить фильтры
-          </button>
+          <Button @click="resetFilters"> Сбросить фильтры </Button>
           <span class="results-count">
             Найдено: {{ filteredDpsData.length }} из {{ allDpsData.length }}
           </span>
@@ -170,78 +143,59 @@
       </div>
 
       <div v-else class="table-container">
-        <table>
-          <thead>
-            <tr>
-              <th>Тип</th>
-              <th>Название</th>
-              <th>Cтволы</th>
-              <th>Пробитие</th>
-              <th>Урон за выстрел</th>
-              <th>Перезарядка (сек)</th>
-              <th>Урон в минуту</th>
-              <th>Дальность</th>
-              <!-- <th>Макс. угол (°)</th> -->
-              <!-- <th>Разброс</th> -->
-              <th v-if="cannonsNumber !== null">Урон за залп</th>
-              <th v-if="targetHP !== null && cannonsNumber !== null">
-                Кол-во залпов
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="(item, index) in filteredDpsData"
-              :key="index"
-              :class="[
-                `type-${item.cannon.type}`,
-                { 'is-bombard': item.cannon.isBombard },
-              ]"
+        <DataTable
+          :data="filteredDpsData"
+          :fields="tableFields"
+          :row-class="getRowClass"
+          default-sort-key="dps"
+          default-sort-direction="desc"
+        >
+          <template #["cannon.type"]="{ row }">
+            {{ getTypeLabel(row.cannon.type) }}
+            <span v-if="row.cannon.isBombard" class="bombard-badge">
+              Бомбарда
+            </span>
+          </template>
+          <template #["cannon.name"]="{ row }">
+            {{ row.cannon.name }}
+          </template>
+          <template #["cannon.shotsPerLoad"]="{ row }">
+            {{ formatValue(row.cannon.shotsPerLoad) }}
+          </template>
+          <template #["cannon.penetration"]="{ row }">
+            {{ formatNumber(row.cannon.penetration) }}
+            <span
+              v-if="isPhosphorusActive && row.cannon.penetration !== null"
+              class="phosphorus-bonus"
             >
-              <td class="type-cell">
-                {{ getTypeLabel(item.cannon.type) }}
-                <span v-if="item.cannon.isBombard" class="bombard-badge">
-                  Бомбарда
-                </span>
-              </td>
-              <td class="name-cell">
-                {{ item.cannon.name }}
-              </td>
-              <td>
-                {{ formatValue(item.cannon.shotsPerLoad) }}
-              </td>
-              <td class="penetration-cell">
-                {{ formatNumber(item.cannon.penetration) }}
-                <span
-                  v-if="isPhosphorusActive && item.cannon.penetration !== null"
-                  class="phosphorus-bonus"
-                >
-                  +2
-                </span>
-                <span
-                  v-if="isBlackPowderActive && item.cannon.penetration !== null"
-                  class="phosphorus-bonus"
-                >
-                  +2.5
-                </span>
-              </td>
-              <td class="damage-cell">
-                {{ formatNumber(item.damagePerShot) }}
-              </td>
-              <td>{{ formatNumber(item.cannon.reloadTimeSeconds) }}</td>
-              <td class="dps-cell">{{ formatNumber(item.dps) }}</td>
-              <td>{{ formatValue(item.cannon.range) }}</td>
-              <!-- <td>{{ formatValue(item.cannon.maxAngleDeg) }}</td> -->
-              <!-- <td>{{ formatValue(item.cannon.scatter) }}</td> -->
-              <td v-if="cannonsNumber !== null">
-                {{ formatNumber(item.broadsideDamage) }}
-              </td>
-              <td v-if="targetHP !== null && cannonsNumber !== null">
-                {{ formatValue(item.broadsidesNeeded) }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              +2
+            </span>
+            <span
+              v-if="isBlackPowderActive && row.cannon.penetration !== null"
+              class="phosphorus-bonus"
+            >
+              +2.5
+            </span>
+          </template>
+          <template #["damagePerShot"]="{ row }">
+            {{ formatNumber(row.damagePerShot) }}
+          </template>
+          <template #["cannon.reloadTimeSeconds"]="{ row }">
+            {{ formatNumber(row.cannon.reloadTimeSeconds) }}
+          </template>
+          <template #["dps"]="{ row }">
+            {{ formatNumber(row.dps) }}
+          </template>
+          <template #["cannon.range"]="{ row }">
+            {{ formatValue(row.cannon.range) }}
+          </template>
+          <template #["broadsideDamage"]="{ row }">
+            {{ formatNumber(row.broadsideDamage) }}
+          </template>
+          <template #["broadsidesNeeded"]="{ row }">
+            {{ formatValue(row.broadsidesNeeded) }}
+          </template>
+        </DataTable>
       </div>
     </div>
   </div>
@@ -251,10 +205,13 @@
 import { ref, computed } from "vue";
 import { cannons } from "../const/cannons.js";
 import { formatNumber, formatValue } from "../utils/formatting.js";
+import Input from "../components/UI/Input.vue";
+import Button from "../components/UI/Button.vue";
+import DataTable from "../components/UI/DataTable.vue";
 
-const targetArmor = ref(0);
-const targetHP = ref(1000);
-const cannonsNumber = ref(1);
+const targetArmor = ref(6.4);
+const targetHP = ref(3000);
+const cannonsNumber = ref(38);
 const isPhosphorusActive = ref(false);
 const isBlackPowderActive = ref(false);
 const searchQuery = ref("");
@@ -298,6 +255,48 @@ const getTypeLabel = (type) => {
   };
   return labels[type] || type;
 };
+
+const tableFields = computed(() => {
+  const fields = [
+    { name: "Тип", key: "cannon.type", cellClass: "type-cell" },
+    { name: "Название", key: "cannon.name", cellClass: "name-cell" },
+    { name: "Cтволы", key: "cannon.shotsPerLoad", sortable: true },
+    {
+      name: "Пробитие",
+      key: "cannon.penetration",
+      cellClass: "penetration-cell",
+      sortable: true,
+    },
+    {
+      name: "Урон за выстрел",
+      key: "damagePerShot",
+      cellClass: "damage-cell",
+      sortable: true,
+    },
+    {
+      name: "Перезарядка (сек)",
+      key: "cannon.reloadTimeSeconds",
+      sortable: true,
+    },
+    { name: "Урон в минуту", key: "dps", cellClass: "dps-cell", sortable: true },
+    { name: "Дальность", key: "cannon.range", sortable: true },
+  ];
+
+  if (cannonsNumber.value !== null) {
+    fields.push({ name: "Урон за залп", key: "broadsideDamage", sortable: true });
+  }
+
+  if (targetHP.value !== null && cannonsNumber.value !== null) {
+    fields.push({ name: "Кол-во залпов", key: "broadsidesNeeded", sortable: true });
+  }
+
+  return fields;
+});
+
+const getRowClass = (row) => [
+  `type-${row.cannon.type}`,
+  { "is-bombard": row.cannon.isBombard },
+];
 
 const getEffectivePenetration = (penetration) => {
   if (penetration === null || penetration === undefined) {
@@ -370,13 +369,7 @@ const allDpsData = computed(() => {
         broadsidesNeeded,
       };
     })
-    .filter((item) => item.cannon.penetration !== null) // Filter out cannons without penetration
-    .sort((a, b) => {
-      // Sort by DPS descending
-      if (a.dps === null || isNaN(a.dps)) return 1;
-      if (b.dps === null || isNaN(b.dps)) return -1;
-      return b.dps - a.dps;
-    });
+    .filter((item) => item.cannon.penetration !== null); // Filter out cannons without penetration
 });
 
 const filteredDpsData = computed(() => {
@@ -463,20 +456,6 @@ const resetFilters = () => {
 </script>
 
 <style lang="scss" scoped>
-// delete arrows
-/* Chrome, Safari, Edge, Opera */
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-/* Firefox */
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
 h1 {
   color: var(--color-heading);
   margin-block: 1rem;
@@ -510,19 +489,9 @@ h1 {
       white-space: nowrap;
     }
 
-    .armor-input {
-      padding: 0.5rem 0.75rem;
-      border: 1px solid var(--color-border);
-      border-radius: 4px;
-      background: var(--color-background);
-      color: var(--color-text);
-      font-size: 1rem;
-      width: 100px;
-      transition: border-color 0.2s;
-
-      &:focus {
-        outline: none;
-        border-color: var(--color-border-hover);
+    .armor-input-row {
+      :deep(.ui-input) {
+        width: 100px;
       }
     }
 
@@ -572,21 +541,9 @@ h1 {
         font-size: 0.9rem;
       }
 
-      .search-input {
+      :deep(.ui-input) {
         width: 250px;
         max-width: 400px;
-        padding: 0.75rem;
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-        background: var(--color-background);
-        color: var(--color-text);
-        font-size: 1rem;
-        transition: border-color 0.2s;
-
-        &:focus {
-          outline: none;
-          border-color: var(--color-border-hover);
-        }
       }
 
       .type-filters {
@@ -626,44 +583,12 @@ h1 {
         gap: 0.75rem;
         flex-wrap: wrap;
 
-        .range-input {
+        :deep(.ui-input) {
           width: 100px;
-          padding: 0.5rem;
-          border: 1px solid var(--color-border);
-          border-radius: 4px;
-          background: var(--color-background);
-          color: var(--color-text);
-          font-size: 0.9rem;
-          transition: border-color 0.2s;
-
-          &:focus {
-            outline: none;
-            border-color: var(--color-border-hover);
-          }
         }
 
         span {
           color: var(--color-text);
-        }
-      }
-
-      .reset-button {
-        padding: 0.75rem 1.5rem;
-        background: var(--color-background);
-        border: 1px solid var(--color-border);
-        border-radius: 4px;
-        color: var(--color-text);
-        cursor: pointer;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-
-        &:hover {
-          background: var(--color-background-mute);
-          border-color: var(--color-border-hover);
-        }
-
-        &:active {
-          transform: scale(0.98);
         }
       }
 
@@ -693,130 +618,89 @@ h1 {
     .table-container {
       width: 100%;
       overflow-x: auto;
-    }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: var(--color-background);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    thead {
-      background: var(--color-background-soft);
-      border-bottom: 2px solid var(--color-border);
-
-      th {
-        padding: 1rem;
-        text-align: left;
-        font-weight: 600;
-        color: var(--color-heading);
-        white-space: nowrap;
+      :deep(.ui-table tbody tr.type-light) {
+        border-left: 3px solid #4caf50;
       }
-    }
 
-    tbody {
-      tr {
-        border-bottom: 1px solid var(--color-border);
-        transition: background-color 0.2s;
+      :deep(.ui-table tbody tr.type-medium) {
+        border-left: 3px solid #2196f3;
+      }
+
+      :deep(.ui-table tbody tr.type-heavy) {
+        border-left: 3px solid #f44336;
+      }
+
+      :deep(.ui-table tbody tr.type-special) {
+        border-left: 3px solid #ff9800;
+      }
+
+      :deep(.ui-table tbody tr.type-mortar) {
+        border-left: 3px solid #9c27b0;
+      }
+
+      :deep(.ui-table tbody tr.is-bombard) {
+        background: linear-gradient(
+          90deg,
+          rgba(200, 120, 100, 0.02) 0%,
+          transparent 100%
+        );
 
         &:hover {
-          background: var(--color-background-soft);
-        }
-
-        &:last-child {
-          border-bottom: none;
-        }
-
-        &.type-light {
-          border-left: 3px solid #4caf50;
-        }
-
-        &.type-medium {
-          border-left: 3px solid #2196f3;
-        }
-
-        &.type-heavy {
-          border-left: 3px solid #f44336;
-        }
-
-        &.type-special {
-          border-left: 3px solid #ff9800;
-        }
-
-        &.type-mortar {
-          border-left: 3px solid #9c27b0;
-        }
-
-        &.is-bombard {
           background: linear-gradient(
             90deg,
-            rgba(200, 120, 100, 0.02) 0%,
-            transparent 100%
+            rgba(200, 120, 100, 0.04) 0%,
+            var(--color-background-soft) 100%
           );
-
-          &:hover {
-            background: linear-gradient(
-              90deg,
-              rgba(200, 120, 100, 0.04) 0%,
-              var(--color-background-soft) 100%
-            );
-          }
         }
       }
 
-      td {
-        padding: 0.75rem 1rem;
-        color: var(--color-text);
+      :deep(.ui-table td.type-cell) {
+        font-weight: 500;
+        color: var(--color-heading);
 
-        &.type-cell {
+        .bombard-badge {
+          display: inline-block;
+          margin-left: 0.5rem;
+          padding: 0.15rem 0.4rem;
+          background: rgba(200, 120, 100, 0.15);
+          color: #b8735a;
+          border: 1px solid rgba(200, 120, 100, 0.3);
+          border-radius: 3px;
+          font-size: 0.7rem;
           font-weight: 500;
-          color: var(--color-heading);
-
-          .bombard-badge {
-            display: inline-block;
-            margin-left: 0.5rem;
-            padding: 0.15rem 0.4rem;
-            background: rgba(200, 120, 100, 0.15);
-            color: #b8735a;
-            border: 1px solid rgba(200, 120, 100, 0.3);
-            border-radius: 3px;
-            font-size: 0.7rem;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-          }
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
         }
+      }
 
-        &.name-cell {
-          font-weight: 500;
-        }
+      :deep(.ui-table td.name-cell) {
+        font-weight: 500;
+      }
 
-        &.penetration-cell {
-          position: relative;
+      :deep(.ui-table td.penetration-cell) {
+        position: relative;
 
-          .phosphorus-bonus {
-            color: #4caf50;
-            font-weight: 700;
-            margin-left: 0.25rem;
-            font-size: 0.9em;
-          }
-        }
-
-        &.damage-cell {
-          font-weight: 600;
-          color: var(--color-heading);
-        }
-
-        &.dps-cell {
+        .phosphorus-bonus {
+          color: #4caf50;
           font-weight: 700;
-          color: #2196f3;
-          font-size: 1.05em;
+          margin-left: 0.25rem;
+          font-size: 0.9em;
         }
+      }
+
+      :deep(.ui-table td.damage-cell) {
+        font-weight: 600;
+        color: var(--color-heading);
+      }
+
+      :deep(.ui-table td.dps-cell) {
+        font-weight: 700;
+        color: #2196f3;
+        font-size: 1.05em;
       }
     }
+
   }
 
   .placeholder {
@@ -836,8 +720,10 @@ h1 {
       flex-direction: column;
       align-items: flex-start;
 
-      .armor-input {
-        width: 100%;
+      .armor-input-row {
+        :deep(.ui-input) {
+          width: 100%;
+        }
       }
     }
 
@@ -852,7 +738,7 @@ h1 {
           }
 
           .range-inputs {
-            .range-input {
+            :deep(.ui-input) {
               width: 80px;
             }
           }
@@ -860,14 +746,6 @@ h1 {
       }
     }
 
-    table {
-      font-size: 0.875rem;
-    }
-
-    thead th,
-    tbody td {
-      padding: 0.5rem;
-    }
   }
 }
 
