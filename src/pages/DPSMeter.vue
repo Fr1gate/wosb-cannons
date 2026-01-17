@@ -1,32 +1,41 @@
 <template>
+  <h1>Калькулятор урона в минуту (DPS)</h1>
   <div class="dps-meter">
-    <h1>Калькулятор урона в минуту (DPS)</h1>
-
-    <div class="armor-input-section">
-      <label for="armor-input" class="armor-label"> Броня цели: </label>
-      <input
-        id="armor-input"
-        v-model.number="targetArmor"
-        type="number"
-        min="0"
-        step="0.1"
-        placeholder="Введите броню цели"
-        class="armor-input"
-      />
-      <label class="phosphorus-checkbox-label">
-        <input
-          v-model="isPhosphorusActive"
-          type="checkbox"
-          class="phosphorus-checkbox"
-        />
-        <span>Фосфор (+2 пробитие)</span>
-      </label>
-    </div>
-
-    <div
-      v-if="targetArmor !== null && targetArmor >= 0"
-      class="results-section"
-    >
+    <div class="settings-block">
+      <div class="armor-input-section">
+        <div>
+          <label for="armor-input" class="armor-label"> Броня цели: </label>
+          <input
+            id="armor-input"
+            v-model.number="targetArmor"
+            type="number"
+            min="0"
+            step="0.1"
+            placeholder="Введите броню цели"
+            class="armor-input"
+          />
+        </div>
+        <div>
+          <label class="phosphorus-checkbox-label">
+            <input
+              v-model="isPhosphorusActive"
+              type="checkbox"
+              class="phosphorus-checkbox"
+            />
+            <span>Фосфор (+2 пробития)</span>
+          </label>
+        </div>
+        <div>
+          <label class="phosphorus-checkbox-label">
+            <input
+              v-model="isBlackPowderActive"
+              type="checkbox"
+              class="phosphorus-checkbox"
+            />
+            <span>Черный двойной порох (+2.5 пробития)</span>
+          </label>
+        </div>
+      </div>
       <div class="filters">
         <div class="filter-group">
           <label class="filter-label">Поиск по названию:</label>
@@ -96,19 +105,13 @@
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">Урон в минуту:</label>
+          <label class="filter-label">Минимальная дальность:</label>
           <div class="range-inputs">
             <input
-              v-model.number="dpsMin"
+              v-model.number="rangeMin"
               type="number"
               placeholder="Мин"
-              class="range-input"
-            />
-            <span>—</span>
-            <input
-              v-model.number="dpsMax"
-              type="number"
-              placeholder="Макс"
+              step="10"
               class="range-input"
             />
           </div>
@@ -123,7 +126,9 @@
           </span>
         </div>
       </div>
+    </div>
 
+    <div class="results-section">
       <div v-if="filteredDpsData.length === 0" class="no-results">
         Нет результатов, соответствующих фильтрам
       </div>
@@ -173,10 +178,6 @@
         </table>
       </div>
     </div>
-
-    <div v-else class="placeholder">
-      Введите броню цели для расчета урона в минуту
-    </div>
   </div>
 </template>
 
@@ -186,6 +187,7 @@ import { cannons } from "../const/cannons.js";
 
 const targetArmor = ref(0);
 const isPhosphorusActive = ref(false);
+const isBlackPowderActive = ref(false);
 const searchQuery = ref("");
 const selectedTypes = ref(["light", "medium", "heavy", "special", "mortar"]);
 const penetrationMin = ref(null);
@@ -194,6 +196,7 @@ const reloadMin = ref(null);
 const reloadMax = ref(null);
 const dpsMin = ref(null);
 const dpsMax = ref(null);
+const rangeMin = ref(null);
 
 const availableTypes = [
   { value: "light", label: "Легкие" },
@@ -240,7 +243,13 @@ const getEffectivePenetration = (penetration) => {
     return null;
   }
   // Add +2 penetration if фосфор is active
-  return isPhosphorusActive.value ? penetration + 2 : penetration;
+  if (isPhosphorusActive.value) {
+    penetration = penetration + 2;
+  }
+  if (isBlackPowderActive.value) {
+    penetration = penetration + 2.5;
+  }
+  return penetration;
 };
 
 const calculateDamagePerShot = (penetration) => {
@@ -351,6 +360,11 @@ const filteredDpsData = computed(() => {
       return false;
     }
 
+    // filter by range
+    if (rangeMin.value !== null && item.cannon.range < rangeMin.value) {
+      return false;
+    }
+
     return true;
   });
 });
@@ -364,25 +378,46 @@ const resetFilters = () => {
   reloadMax.value = null;
   dpsMin.value = null;
   dpsMax.value = null;
+  rangeMin.value = null;
 };
 </script>
 
 <style lang="scss" scoped>
-.dps-meter {
-  padding: 2rem;
+// delete arrows
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
-  h1 {
-    color: var(--color-heading);
-    margin-bottom: 2rem;
-    text-align: center;
+/* Firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+h1 {
+  color: var(--color-heading);
+  margin-block: 1rem;
+  text-align: center;
+}
+
+.dps-meter {
+  padding-inline: 1rem;
+  display: flex;
+  gap: 2rem;
+
+  .settings-block {
+    display: flex;
+    flex-direction: column;
   }
 
   .armor-input-section {
     display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    padding: 1.5rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
     background: var(--color-background-soft);
     border-radius: 8px;
     border: 1px solid var(--color-border);
@@ -390,18 +425,18 @@ const resetFilters = () => {
     .armor-label {
       font-weight: 600;
       color: var(--color-heading);
-      font-size: 1.1rem;
+      font-size: 1rem;
       white-space: nowrap;
     }
 
     .armor-input {
-      padding: 0.75rem 1rem;
+      padding: 0.5rem 0.75rem;
       border: 1px solid var(--color-border);
       border-radius: 4px;
       background: var(--color-background);
       color: var(--color-text);
       font-size: 1rem;
-      width: 200px;
+      width: 50px;
       transition: border-color 0.2s;
 
       &:focus {
@@ -430,43 +465,94 @@ const resetFilters = () => {
       }
     }
   }
+  .filters {
+    background: var(--color-background-soft);
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
 
-  .results-section {
-    .filters {
-      background: var(--color-background-soft);
-      padding: 1.5rem;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      border: 1px solid var(--color-border);
+    .filter-group {
+      margin-bottom: 1rem;
 
-      .filter-group {
-        margin-bottom: 1.5rem;
+      &:last-child {
+        margin-bottom: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
 
-        &:last-child {
-          margin-bottom: 0;
+      .filter-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--color-heading);
+        font-size: 0.9rem;
+      }
+
+      .search-input {
+        width: 250px;
+        max-width: 400px;
+        padding: 0.75rem;
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+        background: var(--color-background);
+        color: var(--color-text);
+        font-size: 1rem;
+        transition: border-color 0.2s;
+
+        &:focus {
+          outline: none;
+          border-color: var(--color-border-hover);
+        }
+      }
+
+      .type-filters {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+
+        .type-filter-label {
           display: flex;
           align-items: center;
-          gap: 1rem;
-          flex-wrap: wrap;
-        }
+          gap: 0.5rem;
+          padding-block: 0.25rem;
+          cursor: pointer;
+          border-radius: 4px;
+          transition: background-color 0.2s;
 
-        .filter-label {
-          display: block;
-          margin-bottom: 0.5rem;
-          font-weight: 600;
-          color: var(--color-heading);
-          font-size: 0.9rem;
-        }
+          &:hover {
+            background: var(--color-background-mute);
+          }
 
-        .search-input {
-          width: 100%;
-          max-width: 400px;
-          padding: 0.75rem;
+          .type-checkbox {
+            cursor: pointer;
+            width: 1.2rem;
+            height: 1.2rem;
+          }
+
+          span {
+            user-select: none;
+            color: var(--color-text);
+          }
+        }
+      }
+
+      .range-inputs {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+
+        .range-input {
+          width: 100px;
+          padding: 0.5rem;
           border: 1px solid var(--color-border);
           border-radius: 4px;
           background: var(--color-background);
           color: var(--color-text);
-          font-size: 1rem;
+          font-size: 0.9rem;
           transition: border-color 0.2s;
 
           &:focus {
@@ -475,91 +561,43 @@ const resetFilters = () => {
           }
         }
 
-        .type-filters {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 1rem;
-
-          .type-filter-label {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            cursor: pointer;
-            padding: 0.5rem;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-
-            &:hover {
-              background: var(--color-background-mute);
-            }
-
-            .type-checkbox {
-              cursor: pointer;
-              width: 1.2rem;
-              height: 1.2rem;
-            }
-
-            span {
-              user-select: none;
-              color: var(--color-text);
-            }
-          }
-        }
-
-        .range-inputs {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
-          flex-wrap: wrap;
-
-          .range-input {
-            width: 100px;
-            padding: 0.5rem;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            background: var(--color-background);
-            color: var(--color-text);
-            font-size: 0.9rem;
-            transition: border-color 0.2s;
-
-            &:focus {
-              outline: none;
-              border-color: var(--color-border-hover);
-            }
-          }
-
-          span {
-            color: var(--color-text);
-          }
-        }
-
-        .reset-button {
-          padding: 0.75rem 1.5rem;
-          background: var(--color-background);
-          border: 1px solid var(--color-border);
-          border-radius: 4px;
+        span {
           color: var(--color-text);
-          cursor: pointer;
-          font-size: 0.9rem;
-          transition: all 0.2s;
-
-          &:hover {
-            background: var(--color-background-mute);
-            border-color: var(--color-border-hover);
-          }
-
-          &:active {
-            transform: scale(0.98);
-          }
-        }
-
-        .results-count {
-          color: var(--color-text);
-          font-size: 0.9rem;
-          font-weight: 500;
         }
       }
+
+      .reset-button {
+        padding: 0.75rem 1.5rem;
+        background: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 4px;
+        color: var(--color-text);
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+
+        &:hover {
+          background: var(--color-background-mute);
+          border-color: var(--color-border-hover);
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+
+      .results-count {
+        color: var(--color-text);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
     }
+  }
+
+  .results-section {
+    max-height: calc(100vh - 6rem);
+    flex-grow: 1;
+    overflow: auto;
 
     .no-results {
       text-align: center;
