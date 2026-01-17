@@ -1,5 +1,4 @@
 <template>
-  <h1>Калькулятор урона в минуту (DPS)</h1>
   <div class="dps-meter">
     <div class="settings-block">
       <div class="armor-input-section">
@@ -208,6 +207,10 @@ import { formatNumber, formatValue } from "../utils/formatting.js";
 import Input from "../components/UI/Input.vue";
 import Button from "../components/UI/Button.vue";
 import DataTable from "../components/UI/DataTable.vue";
+import { useAppStore } from "../stores/app";
+
+const appStore = useAppStore();
+appStore.setPageTitle("Калькулятор DPS");
 
 const targetArmor = ref(6.4);
 const targetHP = ref(3000);
