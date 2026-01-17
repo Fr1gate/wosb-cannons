@@ -1,0 +1,156 @@
+import { createI18n } from "vue-i18n";
+
+const messages = {
+  ru: {
+    pages: {
+      dps: {
+        title: "Калькулятор DPS",
+      },
+    },
+    dps: {
+      inputs: {
+        targetArmor: "Броня цели:",
+        targetHp: "HP цели:",
+        cannonsPerSide: "Количество пушек с борта:",
+      },
+      placeholders: {
+        targetArmor: "Введите броню цели",
+        targetHp: "Введите HP цели",
+        cannonsPerSide: "Введите количество пушек",
+        search: "Введите название орудия...",
+      },
+      buffs: {
+        phosphorus: "Фосфор (+2 пробития)",
+        blackPowder: "Черный двойной порох (+2.5 пробития)",
+      },
+      filters: {
+        searchLabel: "Поиск по названию:",
+        typeLabel: "Тип орудия:",
+        showBombards: "Показывать бомбарды",
+        penetration: "Пробитие:",
+        reload: "Перезарядка (сек):",
+        rangeMin: "Минимальная дальность:",
+        min: "Мин",
+        max: "Макс",
+        reset: "Сбросить фильтры",
+      },
+      results: {
+        empty: "Нет результатов, соответствующих фильтрам",
+        count: "Найдено: {found} из {total}",
+      },
+      table: {
+        type: "Тип",
+        name: "Название",
+        guns: "Cтволы",
+        penetration: "Пробитие",
+        damagePerShot: "Урон за выстрел",
+        reloadSeconds: "Перезарядка (сек)",
+        dps: "Урон в минуту",
+        range: "Дальность",
+        broadsideDamage: "Урон за залп",
+        broadsidesNeeded: "Кол-во залпов",
+        bombard: "Бомбарда",
+      },
+      types: {
+        light: "Легкие",
+        medium: "Средние",
+        heavy: "Тяжелые",
+        special: "Специальные",
+        mortar: "Мортиры",
+        lightSingle: "Легкая",
+        mediumSingle: "Средняя",
+        heavySingle: "Тяжелая",
+        specialSingle: "Специальная",
+        mortarSingle: "Мортира",
+      },
+    },
+    menu: {
+      dps: "Калькулятор DPS",
+      boardingSim: "Симулятор абордажа",
+    },
+    language: {
+      ru: "RU",
+      en: "EN",
+    },
+  },
+  en: {
+    pages: {
+      dps: {
+        title: "DPS Calculator",
+      },
+    },
+    dps: {
+      inputs: {
+        targetArmor: "Target armor:",
+        targetHp: "Target HP:",
+        cannonsPerSide: "Cannons per side:",
+      },
+      placeholders: {
+        targetArmor: "Enter target armor",
+        targetHp: "Enter target HP",
+        cannonsPerSide: "Enter cannons count",
+        search: "Enter cannon name...",
+      },
+      buffs: {
+        phosphorus: "Phosphorus (+2 penetration)",
+        blackPowder: "Double black powder (+2.5 penetration)",
+      },
+      filters: {
+        searchLabel: "Search by name:",
+        typeLabel: "Cannon type:",
+        showBombards: "Show bombards",
+        penetration: "Penetration:",
+        reload: "Reload (sec):",
+        rangeMin: "Minimum range:",
+        min: "Min",
+        max: "Max",
+        reset: "Reset filters",
+      },
+      results: {
+        empty: "No results matching filters",
+        count: "Found: {found} of {total}",
+      },
+      table: {
+        type: "Type",
+        name: "Name",
+        guns: "Guns",
+        penetration: "Penetration",
+        damagePerShot: "Damage per shot",
+        reloadSeconds: "Reload (sec)",
+        dps: "DPS",
+        range: "Range",
+        broadsideDamage: "Broadside damage",
+        broadsidesNeeded: "Broadsides needed",
+        bombard: "Bombard",
+      },
+      types: {
+        light: "Light",
+        medium: "Medium",
+        heavy: "Heavy",
+        special: "Special",
+        mortar: "Mortars",
+        lightSingle: "Light",
+        mediumSingle: "Medium",
+        heavySingle: "Heavy",
+        specialSingle: "Special",
+        mortarSingle: "Mortar",
+      },
+    },
+    menu: {
+      dps: "DPS Calculator",
+      boardingSim: "Boarding Simulator",
+    },
+    language: {
+      ru: "RU",
+      en: "EN",
+    },
+  },
+};
+
+export const i18n = createI18n({
+  legacy: false,
+  locale: "ru",
+  fallbackLocale: "ru",
+  messages,
+});
+

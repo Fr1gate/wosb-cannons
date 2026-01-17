@@ -1,7 +1,17 @@
 <script setup>
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAppStore } from "../stores/app";
 
 const appStore = useAppStore();
+const { locale, t } = useI18n();
+
+const isRuActive = computed(() => locale.value === "ru");
+const isEnActive = computed(() => locale.value === "en");
+
+const setLocale = (nextLocale) => {
+  locale.value = nextLocale;
+};
 </script>
 
 <template>
@@ -9,10 +19,24 @@ const appStore = useAppStore();
     <button class="menu-button" type="button" @click="appStore.toggleMenu">
       ☰
     </button>
-    <div class="header-title">{{ appStore.pageTitle }}</div>
+    <div class="header-title">{{ t(appStore.pageTitleKey) }}</div>
     <div class="header-actions">
-      <button class="lang-button active" type="button">RU</button>
-      <button class="lang-button" type="button">EN</button>
+      <button
+        class="lang-button"
+        :class="{ active: isRuActive }"
+        type="button"
+        @click="setLocale('ru')"
+      >
+        {{ t("language.ru") }}
+      </button>
+      <button
+        class="lang-button"
+        :class="{ active: isEnActive }"
+        type="button"
+        @click="setLocale('en')"
+      >
+        {{ t("language.en") }}
+      </button>
     </div>
   </header>
 </template>

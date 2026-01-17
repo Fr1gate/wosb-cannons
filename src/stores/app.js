@@ -2,12 +2,12 @@ import { defineStore } from "pinia";
 
 export const useAppStore = defineStore("app", {
   state: () => ({
-    pageTitle: "Калькулятор DPS",
+    pageTitleKey: "pages.dps.title",
     isMenuOpen: false,
   }),
   actions: {
-    setPageTitle(title) {
-      this.pageTitle = title;
+    setPageTitle(key) {
+      this.pageTitleKey = key;
     },
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;

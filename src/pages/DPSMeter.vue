@@ -3,30 +3,34 @@
     <div class="settings-block">
       <div class="armor-input-section">
         <div class="armor-input-row">
-          <label for="armor-input" class="armor-label"> Броня цели: </label>
+          <label for="armor-input" class="armor-label">
+            {{ t("dps.inputs.targetArmor") }}
+          </label>
           <Input
             id="armor-input"
             v-model="targetArmor"
             type="number"
             min="0"
             step="0.1"
-            placeholder="Введите броню цели"
+            :placeholder="t('dps.placeholders.targetArmor')"
           />
         </div>
         <div class="armor-input-row">
-          <label for="hp-input" class="armor-label"> HP цели: </label>
+          <label for="hp-input" class="armor-label">
+            {{ t("dps.inputs.targetHp") }}
+          </label>
           <Input
             id="hp-input"
             v-model="targetHP"
             type="number"
             min="1"
             step="10"
-            placeholder="Введите HP цели"
+            :placeholder="t('dps.placeholders.targetHp')"
           />
         </div>
         <div class="armor-input-row">
           <label for="cannons-input" class="armor-label">
-            Количество пушек с борта:
+            {{ t("dps.inputs.cannonsPerSide") }}
           </label>
           <Input
             id="cannons-input"
@@ -34,7 +38,7 @@
             type="number"
             min="1"
             step="1"
-            placeholder="Введите количество пушек"
+            :placeholder="t('dps.placeholders.cannonsPerSide')"
           />
         </div>
         <div>
@@ -45,7 +49,7 @@
               class="phosphorus-checkbox"
               @change="handlePhosphorusChange"
             />
-            <span>Фосфор (+2 пробития)</span>
+            <span>{{ t("dps.buffs.phosphorus") }}</span>
           </label>
         </div>
         <div>
@@ -56,22 +60,22 @@
               class="phosphorus-checkbox"
               @change="handleBlackPowderChange"
             />
-            <span>Черный двойной порох (+2.5 пробития)</span>
+            <span>{{ t("dps.buffs.blackPowder") }}</span>
           </label>
         </div>
       </div>
       <div class="filters">
         <div class="filter-group">
-          <label class="filter-label">Поиск по названию:</label>
+          <label class="filter-label">{{ t("dps.filters.searchLabel") }}</label>
           <Input
             v-model="searchQuery"
             type="text"
-            placeholder="Введите название орудия..."
+            :placeholder="t('dps.placeholders.search')"
           />
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">Тип орудия:</label>
+          <label class="filter-label">{{ t("dps.filters.typeLabel") }}</label>
           <div class="type-filters">
             <label
               v-for="type in availableTypes"
@@ -92,45 +96,68 @@
                 type="checkbox"
                 class="type-checkbox"
               />
-              <span>Показывать бомбарды</span>
+              <span>{{ t("dps.filters.showBombards") }}</span>
             </label>
           </div>
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">Пробитие:</label>
+          <label class="filter-label">{{ t("dps.filters.penetration") }}</label>
           <div class="range-inputs">
-            <Input v-model="penetrationMin" type="number" placeholder="Мин" />
+            <Input
+              v-model="penetrationMin"
+              type="number"
+              :placeholder="t('dps.filters.min')"
+            />
             <span>—</span>
-            <Input v-model="penetrationMax" type="number" placeholder="Макс" />
+            <Input
+              v-model="penetrationMax"
+              type="number"
+              :placeholder="t('dps.filters.max')"
+            />
           </div>
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">Перезарядка (сек):</label>
+          <label class="filter-label">{{ t("dps.filters.reload") }}</label>
           <div class="range-inputs">
-            <Input v-model="reloadMin" type="number" placeholder="Мин" />
+            <Input
+              v-model="reloadMin"
+              type="number"
+              :placeholder="t('dps.filters.min')"
+            />
             <span>—</span>
-            <Input v-model="reloadMax" type="number" placeholder="Макс" />
+            <Input
+              v-model="reloadMax"
+              type="number"
+              :placeholder="t('dps.filters.max')"
+            />
           </div>
         </div>
 
         <div class="filter-group">
-          <label class="filter-label">Минимальная дальность:</label>
+          <label class="filter-label">{{ t("dps.filters.rangeMin") }}</label>
           <div class="range-inputs">
             <Input
               v-model="rangeMin"
               type="number"
-              placeholder="Мин"
+              :placeholder="t('dps.filters.min')"
               step="10"
             />
           </div>
         </div>
 
         <div class="filter-group">
-          <Button @click="resetFilters"> Сбросить фильтры </Button>
+          <Button @click="resetFilters">
+            {{ t("dps.filters.reset") }}
+          </Button>
           <span class="results-count">
-            Найдено: {{ filteredDpsData.length }} из {{ allDpsData.length }}
+            {{
+              t("dps.results.count", {
+                found: filteredDpsData.length,
+                total: allDpsData.length,
+              })
+            }}
           </span>
         </div>
       </div>
@@ -138,7 +165,7 @@
 
     <div class="results-section">
       <div v-if="filteredDpsData.length === 0" class="no-results">
-        Нет результатов, соответствующих фильтрам
+        {{ t("dps.results.empty") }}
       </div>
 
       <div v-else class="table-container">
@@ -152,7 +179,7 @@
           <template #["cannon.type"]="{ row }">
             {{ getTypeLabel(row.cannon.type) }}
             <span v-if="row.cannon.isBombard" class="bombard-badge">
-              Бомбарда
+              {{ t("dps.table.bombard") }}
             </span>
           </template>
           <template #["cannon.name"]="{ row }">
@@ -202,6 +229,7 @@
 
 <script setup>
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { cannons } from "../const/cannons.js";
 import { formatNumber, formatValue } from "../utils/formatting.js";
 import Input from "../components/UI/Input.vue";
@@ -210,7 +238,9 @@ import DataTable from "../components/UI/DataTable.vue";
 import { useAppStore } from "../stores/app";
 
 const appStore = useAppStore();
-appStore.setPageTitle("Калькулятор DPS");
+appStore.setPageTitle("pages.dps.title");
+
+const { t } = useI18n();
 
 const targetArmor = ref(6.4);
 const targetHP = ref(3000);
@@ -240,57 +270,74 @@ const handleBlackPowderChange = () => {
   }
 };
 
-const availableTypes = [
-  { value: "light", label: "Легкие" },
-  { value: "medium", label: "Средние" },
-  { value: "heavy", label: "Тяжелые" },
-  // { value: "special", label: "Специальные" },
-  // { value: "mortar", label: "Мортиры" },
-];
+const availableTypes = computed(() => [
+  { value: "light", label: t("dps.types.light") },
+  { value: "medium", label: t("dps.types.medium") },
+  { value: "heavy", label: t("dps.types.heavy") },
+  // { value: "special", label: t("dps.types.special") },
+  // { value: "mortar", label: t("dps.types.mortar") },
+]);
 
 const getTypeLabel = (type) => {
   const labels = {
-    light: "Легкая",
-    medium: "Средняя",
-    heavy: "Тяжелая",
-    special: "Специальная",
-    mortar: "Мортира",
+    light: t("dps.types.lightSingle"),
+    medium: t("dps.types.mediumSingle"),
+    heavy: t("dps.types.heavySingle"),
+    special: t("dps.types.specialSingle"),
+    mortar: t("dps.types.mortarSingle"),
   };
   return labels[type] || type;
 };
 
 const tableFields = computed(() => {
   const fields = [
-    { name: "Тип", key: "cannon.type", cellClass: "type-cell" },
-    { name: "Название", key: "cannon.name", cellClass: "name-cell" },
-    { name: "Cтволы", key: "cannon.shotsPerLoad", sortable: true },
+    { name: t("dps.table.type"), key: "cannon.type", cellClass: "type-cell" },
     {
-      name: "Пробитие",
+      name: t("dps.table.name"),
+      key: "cannon.name",
+      cellClass: "name-cell",
+    },
+    { name: t("dps.table.guns"), key: "cannon.shotsPerLoad", sortable: true },
+    {
+      name: t("dps.table.penetration"),
       key: "cannon.penetration",
       cellClass: "penetration-cell",
       sortable: true,
     },
     {
-      name: "Урон за выстрел",
+      name: t("dps.table.damagePerShot"),
       key: "damagePerShot",
       cellClass: "damage-cell",
       sortable: true,
     },
     {
-      name: "Перезарядка (сек)",
+      name: t("dps.table.reloadSeconds"),
       key: "cannon.reloadTimeSeconds",
       sortable: true,
     },
-    { name: "Урон в минуту", key: "dps", cellClass: "dps-cell", sortable: true },
-    { name: "Дальность", key: "cannon.range", sortable: true },
+    {
+      name: t("dps.table.dps"),
+      key: "dps",
+      cellClass: "dps-cell",
+      sortable: true,
+    },
+    { name: t("dps.table.range"), key: "cannon.range", sortable: true },
   ];
 
   if (cannonsNumber.value !== null) {
-    fields.push({ name: "Урон за залп", key: "broadsideDamage", sortable: true });
+    fields.push({
+      name: t("dps.table.broadsideDamage"),
+      key: "broadsideDamage",
+      sortable: true,
+    });
   }
 
   if (targetHP.value !== null && cannonsNumber.value !== null) {
-    fields.push({ name: "Кол-во залпов", key: "broadsidesNeeded", sortable: true });
+    fields.push({
+      name: t("dps.table.broadsidesNeeded"),
+      key: "broadsidesNeeded",
+      sortable: true,
+    });
   }
 
   return fields;

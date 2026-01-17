@@ -1,7 +1,9 @@
 <script setup>
+import { useI18n } from "vue-i18n";
 import { useAppStore } from "../stores/app";
 
 const appStore = useAppStore();
+const { t } = useI18n();
 </script>
 
 <template>
@@ -18,9 +20,9 @@ const appStore = useAppStore();
         to="/dps"
         @click="appStore.closeMenu"
       >
-        Калькулятор DPS
+        {{ t("menu.dps") }}
       </RouterLink>
-      <span class="menu-link disabled">Симулятор абордажа</span>
+      <span class="menu-link disabled">{{ t("menu.boardingSim") }}</span>
     </nav>
   </aside>
 </template>
