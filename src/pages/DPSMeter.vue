@@ -16,6 +16,32 @@
           />
         </div>
         <div>
+          <label for="armor-input" class="armor-label"> HP цели: </label>
+          <input
+            id="armor-input"
+            v-model.number="targetHP"
+            type="number"
+            min="1"
+            step="10"
+            placeholder="Введите HP цели"
+            class="armor-input"
+          />
+        </div>
+        <div>
+          <label for="armor-input" class="armor-label">
+            Количество пушек с борта:
+          </label>
+          <input
+            id="armor-input"
+            v-model.number="cannonsNumber"
+            type="number"
+            min="1"
+            step="1"
+            placeholder="Введите количество пушек"
+            class="armor-input"
+          />
+        </div>
+        <div>
           <label class="phosphorus-checkbox-label">
             <input
               v-model="isPhosphorusActive"
@@ -154,9 +180,13 @@
               <th>Перезарядка (сек)</th>
               <th>Урон в минуту</th>
               <th>Дальность</th>
-              <th>Макс. угол (°)</th>
-              <th>Разброс</th>
+              <!-- <th>Макс. угол (°)</th> -->
+              <!-- <th>Разброс</th> -->
               <th>Cтволы</th>
+              <th v-if="cannonsNumber !== null">Урон за залп</th>
+              <th v-if="targetHP !== null && cannonsNumber !== null">
+                Кол-во залпов
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -192,9 +222,17 @@
               <td>{{ item.cannon.reloadTimeSeconds }}</td>
               <td class="dps-cell">{{ formatDPS(item.dps) }}</td>
               <td>{{ formatValue(item.cannon.range) }}</td>
-              <td>{{ formatValue(item.cannon.maxAngleDeg) }}</td>
-              <td>{{ formatValue(item.cannon.scatter) }}</td>
-              <td>{{ formatValue(item.cannon.shotsPerLoad) }}</td>
+              <!-- <td>{{ formatValue(item.cannon.maxAngleDeg) }}</td> -->
+              <!-- <td>{{ formatValue(item.cannon.scatter) }}</td> -->
+              <td>
+                {{ formatValue(item.cannon.shotsPerLoad) }}
+              </td>
+              <td v-if="cannonsNumber !== null">
+                {{ formatValue(item.broadsideDamage) }}
+              </td>
+              <td v-if="targetHP !== null && cannonsNumber !== null">
+                {{ formatValue(item.broadsidesNeeded) }}
+              </td>
             </tr>
           </tbody>
         </table>
@@ -208,6 +246,8 @@ import { ref, computed } from "vue";
 import { cannons } from "../const/cannons.js";
 
 const targetArmor = ref(0);
+const targetHP = ref(1000);
+const cannonsNumber = ref(1);
 const isPhosphorusActive = ref(false);
 const isBlackPowderActive = ref(false);
 const searchQuery = ref("");
@@ -323,11 +363,25 @@ const allDpsData = computed(() => {
     .map((cannon) => {
       const damagePerShot = calculateDamagePerShot(cannon.penetration);
       const dps = calculateDPS(cannon);
+      const damagePerLoad =
+        calculateDamagePerShot(cannon.penetration) * cannon.shotsPerLoad;
+      const broadsideDamage =
+        cannonsNumber.value !== null
+          ? damagePerLoad * cannonsNumber.value
+          : null;
+      const broadsidesNeeded =
+        targetHP.value !== null &&
+        broadsideDamage !== null &&
+        broadsideDamage > 0
+          ? Math.ceil(targetHP.value / broadsideDamage)
+          : null;
 
       return {
         cannon,
         damagePerShot,
         dps,
+        broadsideDamage,
+        broadsidesNeeded,
       };
     })
     .filter((item) => item.cannon.penetration !== null) // Filter out cannons without penetration
@@ -477,7 +531,7 @@ h1 {
       background: var(--color-background);
       color: var(--color-text);
       font-size: 1rem;
-      width: 50px;
+      width: 100px;
       transition: border-color 0.2s;
 
       &:focus {
