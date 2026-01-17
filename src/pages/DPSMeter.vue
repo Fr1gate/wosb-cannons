@@ -605,6 +605,30 @@ h1 {
     flex-grow: 1;
     overflow: auto;
 
+    /* Chrome / Edge / Safari */
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: var(--color-background);
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border);
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb:hover {
+      background: var(--color-border-hover);
+    }
+
+    /* Firefox */
+    scrollbar-color: var(--color-border) var(--color-background);
+    scrollbar-width: thin;
+
     .no-results {
       text-align: center;
       padding: 3rem;
@@ -618,6 +642,29 @@ h1 {
     .table-container {
       width: 100%;
       overflow-x: auto;
+
+      /* Chrome / Edge / Safari */
+      &::-webkit-scrollbar {
+        height: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: var(--color-background);
+        border-radius: 8px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: var(--color-border);
+        border-radius: 8px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: var(--color-border-hover);
+      }
+
+      /* Firefox */
+      scrollbar-color: var(--color-border) var(--color-background);
+      scrollbar-width: thin;
 
       :deep(.ui-table tbody tr.type-light) {
         border-left: 3px solid #4caf50;
