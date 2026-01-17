@@ -3,7 +3,7 @@
   <div class="dps-meter">
     <div class="settings-block">
       <div class="armor-input-section">
-        <div>
+        <div class="armor-input-row">
           <label for="armor-input" class="armor-label"> Броня цели: </label>
           <input
             id="armor-input"
@@ -15,7 +15,7 @@
             class="armor-input"
           />
         </div>
-        <div>
+        <div class="armor-input-row">
           <label for="armor-input" class="armor-label"> HP цели: </label>
           <input
             id="armor-input"
@@ -27,7 +27,7 @@
             class="armor-input"
           />
         </div>
-        <div>
+        <div class="armor-input-row">
           <label for="armor-input" class="armor-label">
             Количество пушек с борта:
           </label>
@@ -175,6 +175,7 @@
             <tr>
               <th>Тип</th>
               <th>Название</th>
+              <th>Cтволы</th>
               <th>Пробитие</th>
               <th>Урон за выстрел</th>
               <th>Перезарядка (сек)</th>
@@ -182,7 +183,6 @@
               <th>Дальность</th>
               <!-- <th>Макс. угол (°)</th> -->
               <!-- <th>Разброс</th> -->
-              <th>Cтволы</th>
               <th v-if="cannonsNumber !== null">Урон за залп</th>
               <th v-if="targetHP !== null && cannonsNumber !== null">
                 Кол-во залпов
@@ -207,28 +207,34 @@
               <td class="name-cell">
                 {{ item.cannon.name }}
               </td>
+              <td>
+                {{ formatValue(item.cannon.shotsPerLoad) }}
+              </td>
               <td class="penetration-cell">
-                {{ formatValue(item.cannon.penetration) }}
+                {{ formatNumber(item.cannon.penetration) }}
                 <span
                   v-if="isPhosphorusActive && item.cannon.penetration !== null"
                   class="phosphorus-bonus"
                 >
                   +2
                 </span>
+                <span
+                  v-if="isBlackPowderActive && item.cannon.penetration !== null"
+                  class="phosphorus-bonus"
+                >
+                  +2.5
+                </span>
               </td>
               <td class="damage-cell">
-                {{ formatDamage(item.damagePerShot) }}
+                {{ formatNumber(item.damagePerShot) }}
               </td>
-              <td>{{ item.cannon.reloadTimeSeconds }}</td>
-              <td class="dps-cell">{{ formatDPS(item.dps) }}</td>
+              <td>{{ formatNumber(item.cannon.reloadTimeSeconds) }}</td>
+              <td class="dps-cell">{{ formatNumber(item.dps) }}</td>
               <td>{{ formatValue(item.cannon.range) }}</td>
               <!-- <td>{{ formatValue(item.cannon.maxAngleDeg) }}</td> -->
               <!-- <td>{{ formatValue(item.cannon.scatter) }}</td> -->
-              <td>
-                {{ formatValue(item.cannon.shotsPerLoad) }}
-              </td>
               <td v-if="cannonsNumber !== null">
-                {{ formatValue(item.broadsideDamage) }}
+                {{ formatNumber(item.broadsideDamage) }}
               </td>
               <td v-if="targetHP !== null && cannonsNumber !== null">
                 {{ formatValue(item.broadsidesNeeded) }}
@@ -244,6 +250,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { cannons } from "../const/cannons.js";
+import { formatNumber, formatValue } from "../utils/formatting.js";
 
 const targetArmor = ref(0);
 const targetHP = ref(1000);
@@ -290,27 +297,6 @@ const getTypeLabel = (type) => {
     mortar: "Мортира",
   };
   return labels[type] || type;
-};
-
-const formatValue = (value) => {
-  if (value === null || value === undefined) {
-    return "—";
-  }
-  return value;
-};
-
-const formatDamage = (damage) => {
-  if (damage === null || damage === undefined) {
-    return "—";
-  }
-  return damage.toFixed(1);
-};
-
-const formatDPS = (dps) => {
-  if (dps === null || dps === undefined || isNaN(dps)) {
-    return "—";
-  }
-  return dps.toFixed(1);
 };
 
 const getEffectivePenetration = (penetration) => {
@@ -883,5 +869,10 @@ h1 {
       padding: 0.5rem;
     }
   }
+}
+
+.armor-input-row {
+  display: flex;
+  justify-content: space-between;
 }
 </style>
