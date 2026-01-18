@@ -49,7 +49,7 @@ const messages = {
         broadsideDamage: "Урон за залп",
         broadsidesNeeded: "Кол-во залпов",
         bombard: "Бомбарда",
-        boardingCandidate: "☠",
+        boardingCandidate: "☠️",
       },
       types: {
         light: "Легкие",
@@ -125,7 +125,7 @@ const messages = {
         broadsideDamage: "Broadside damage",
         broadsidesNeeded: "Broadsides needed",
         bombard: "Bombard",
-        boardingCandidate: "☠",
+        boardingCandidate: "☠️",
       },
       types: {
         light: "Light",
@@ -161,4 +161,3 @@ export const i18n = createI18n({
   fallbackLocale: "ru",
   messages,
 });
-
