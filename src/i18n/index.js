@@ -50,6 +50,7 @@ const messages = {
         broadsidesNeeded: "Кол-во залпов",
         bombard: "Бомбарда",
         boardingCandidate: "☠️",
+        boardingCandidateTitle: "Абордаж без перезарядки",
       },
       types: {
         light: "Легкие",
@@ -126,6 +127,7 @@ const messages = {
         broadsidesNeeded: "Broadsides needed",
         bombard: "Bombard",
         boardingCandidate: "☠️",
+        boardingCandidateTitle: "Boarding without reload",
       },
       types: {
         light: "Light",

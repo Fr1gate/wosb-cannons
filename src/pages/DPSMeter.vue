@@ -176,7 +176,7 @@
           </template>
           <template #["broadsideDamage"]="{ row }">
             {{ formatNumber(row.broadsideDamage) }}
-            <span v-if="row.boardingCandidate && !row.cannon.isBombard" class="boarding-badge">
+            <span v-if="row.boardingCandidate && !row.cannon.isBombard" class="boarding-badge" :title="t('dps.table.boardingCandidateTitle')">
               {{ t("dps.table.boardingCandidate") }}
             </span>
           </template>
